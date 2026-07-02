@@ -1,0 +1,48 @@
+﻿@model GymKalendar.Models.RegisterViewModel;
+
+@{
+    Layout = null;
+}
+
+
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Register</title>
+    </head>
+
+    <body>
+        <form>
+            <div class="title">
+                <h1>Регистрация</h1>
+            </div>
+            <div>
+                <label>Имя:</label>
+                <input type="text" name="Name" />
+            </div>
+            <div>
+                <label>Фамилия:</label>
+                <input type="text" name="Surname" />
+            </div>
+            <div>
+                <label>Возраст:</label>
+                <input type="number" name="Age" />
+            </div>
+            <div>
+                <label>Почта:</label>
+                <input type="email" name="Email" />
+            </div>
+            <div>
+                <label>Телефон:</label>
+                <input type="text" name="Phone" />
+            </div>
+            <div>
+                <label>Пароль:</label> 
+                <input type="password" name="Password" />
+            </div>
+
+        </form>
+    </body>
+</html>
