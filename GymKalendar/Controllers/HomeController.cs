@@ -20,7 +20,7 @@ namespace GymKalendar.Controllers
 
 
         [HttpPost]
-        public IActionResult IActionResult(RegisterViewModel dto)
+        public IActionResult Register(RegisterViewModel dto)
         {
             if(!ModelState.IsValid)
             {
