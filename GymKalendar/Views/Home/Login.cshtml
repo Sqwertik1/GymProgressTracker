@@ -1,0 +1,34 @@
+﻿@model GymKalendar.Models.LoginViewModel;
+
+@{
+  Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <form>
+        <div class="title">
+            <h1>Вход</h1>
+        </div>
+        <div>
+            <label>Почта или номер телефона:</label>
+            <input asp-for="LoginInput" type="email" />
+        </div>
+        <div>
+            <label>Пароль:</label>
+            <input asp-for="Password" type="password" />
+        </div>
+
+        <button type="submit">Войти</button>
+
+        <div class="link">
+            <a href="/Home/Register">Регистрация</a>
+        </div>
+    </form>
+</body>
+</html>

@@ -14,34 +14,44 @@
     </head>
 
     <body>
-        <form>
+        <form asp-controller="Home" asp-action="Register" method="post">
             <div class="title">
                 <h1>Регистрация</h1>
+
+            <div asp-validation-summary="ModelOnly" style="color:red;"></div>
+
             </div>
             <div>
                 <label>Имя:</label>
-                <input type="text" name="Name" />
+                <input asp-for="FirstName" type="text" />
             </div>
             <div>
                 <label>Фамилия:</label>
-                <input type="text" name="Surname" />
+                <input asp-for="LastName" type="text" />
             </div>
             <div>
                 <label>Возраст:</label>
-                <input type="number" name="Age" />
+                <input asp-for="Age" type="number" />
             </div>
             <div>
                 <label>Почта:</label>
-                <input type="email" name="Email" />
+                <input asp-for="Email" type="email" />
             </div>
             <div>
                 <label>Телефон:</label>
-                <input type="text" name="Phone" />
+                <input asp-for="Phone" type="text" />
             </div>
             <div>
                 <label>Пароль:</label> 
-                <input type="password" name="Password" />
+                <input asp-for="Password" type="password" />
             </div>
+
+            <button type="submit">Зарегистрироваться</button>
+
+            <div class="link">
+                <a href="/Home/Login">Уже есть аккаунт? Войти</a>
+            </div>
+
 
         </form>
     </body>
