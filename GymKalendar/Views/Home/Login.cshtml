@@ -11,13 +11,16 @@
     <title>Login</title>
 </head>
 <body>
-    <form>
+    <form asp-controller="Home" asp-action="Login" method="post">
         <div class="title">
             <h1>Вход</h1>
         </div>
+
+        <div asp-validation-summary="All" style="color:red;"></div>
+
         <div>
             <label>Почта или номер телефона:</label>
-            <input asp-for="LoginInput" type="email" />
+            <input asp-for="LoginInput" />
         </div>
         <div>
             <label>Пароль:</label>

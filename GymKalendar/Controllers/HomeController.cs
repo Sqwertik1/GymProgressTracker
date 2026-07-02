@@ -4,6 +4,8 @@ using System.Diagnostics;
 using GymKalendar.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims; // ОБЯЗАТЕЛЬНО добавь этот using наверх
+using Microsoft.AspNetCore.Authentication; // И этот тоже
 
 namespace GymKalendar.Controllers
 {
@@ -52,18 +54,42 @@ namespace GymKalendar.Controllers
 
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel dto)
+        public async Task<IActionResult> Login(LoginViewModel dto)
         {
             if (!ModelState.IsValid)
             {
                 return View(dto);
             }
+
             var user = _db.Users.FirstOrDefault(u => (u.Email == dto.LoginInput || u.Phone == dto.LoginInput) && u.Password == dto.Password);
+
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return View(dto);
             }
+
+
+            // --- МАГИЯ АВТОРИЗАЦИИ MVC НАЧИНАЕТСЯ ТУТ ---
+
+            // 1. Создаем список "Клеймов" (Утверждений о пользователе). 
+            // Это инфа, которую сервер зашьет внутрь куки, чтобы всегда знать, кто залогинен.
+            var claims = new List<Claim>
+    {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Зашиваем ID
+            new Claim(ClaimTypes.Name, user.FirstName)               // Зашиваем Имя
+    };
+
+            // 2. Создаем удостоверение личности и говорим, что оно работает на куках
+            var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
+
+            // 3. Выписываем "паспорт" браузеру! 
+            // Движок ASP.NET Core сам создаст зашифрованный куки-файл и отправит его в браузер пользователя.
+            await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
+
+            // --- КОНЕЦ МАГИИ ---
+
+            // Теперь перенаправляем в личный кабинет!
             return RedirectToAction("Index", "Dashboard");
         }
 

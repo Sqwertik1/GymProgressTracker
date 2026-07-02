@@ -11,6 +11,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString));
 
+
+// 1. Подключаем сервис авторизации через Куки
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "GymKalendar.Auth"; // Имя куки-файла в браузере
+        options.LoginPath = "/Home/Login";        // Куда слать юзера, если он не авторизован
+    });
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -26,6 +35,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+// 2. Включаем проверку личности (кто ты такой?)
+app.UseAuthentication();
+
 
 app.UseAuthorization();
 
