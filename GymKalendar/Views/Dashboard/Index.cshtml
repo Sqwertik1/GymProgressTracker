@@ -1,22 +1,160 @@
-﻿@{
-    Layout = null; // Отключаем стандартные стили, делаем чистую страницу
+﻿@model List<GymKalendar.Models.Workout>
+
+@{
+    Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Личный кабинет - Gym Kalendar</title>
+    <meta charset="UTF-8">
+    <title>Личный кабинет - GymKalendar</title>
+    <style>
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                background-color: #f4f6f9;
+                margin: 0;
+                padding: 40px;
+                color: #333;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                color: #1a1a1a;
+                margin-bottom: 30px;
+            }
+
+            /* Стили кнопок */
+            .btn {
+                display: inline-block;
+                padding: 12px 24px;
+                background-color: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: background 0.2s;
+            }
+
+                .btn:hover {
+                    background-color: #0056b3;
+                }
+
+            .btn-small {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                border-radius: 6px;
+            }
+
+            /* Стили для карточек */
+            .workout-section {
+                margin-top: 40px;
+            }
+
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 20px;
+            }
+
+            .workout-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .workout-card {
+                background: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 20px;
+                width: 220px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                transition: transform 0.2s, box-shadow 0.2s;
+                cursor: pointer;
+            }
+
+                .workout-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+                }
+
+            .workout-title {
+                font-size: 1.2rem;
+                margin: 0 0 10px 0;
+                color: #007bff;
+            }
+
+            .workout-date {
+                font-size: 0.85rem;
+                color: #777;
+            }
+
+            /* Пустое состояние */
+            .empty-state {
+                text-align: center;
+                padding: 50px;
+                background: white;
+                border-radius: 12px;
+                border: 2px dashed #ccc;
+                margin-top: 20px;
+            }
+
+                .empty-state p {
+                    font-size: 1.2rem;
+                    color: #666;
+                    margin-bottom: 20px;
+                }
+    </style>
 </head>
 <body>
 
-    <div style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif;">
-        <h1>Добро пожаловать в зал, @ViewBag.SportsmanName! 💪🔥</h1>
+    <div class="container">
+        <!-- Твоё приветствие большим текстом -->
+        <h1>Привет, @ViewBag.SportsmanName! 💪🔥</h1>
 
-        <p>Это твой личный кабинет. Твой аккаунт успешно авторизован через Cookie.</p>
+        <div class="workout-section">
 
-        <div style="margin-top: 30px; border: 1px solid #ccc; padding: 20px; display: inline-block;">
-            <h3>Твои тренировки на сегодня:</h3>
-            <p>Пока тут пусто, но скоро здесь будет твой трекер прогресса!</p>
+            @if (Model == null || Model.Count == 0)
+            {
+                <!-- ЕСЛИ ТРЕНИРОВОК НЕТ -->
+                <div class="empty-state">
+                    <p>История тренировок пустая</p>
+                    <!-- Большая красивая кнопочка -->
+                    <a href="/Workout/Create" class="btn">Записать тренировку</a>
+                </div>
+            }
+            else
+            {
+                <!-- ЕСЛИ ТРЕНИРОВКИ ЕСТЬ -->
+                <div class="section-header">
+                    <h2>История тренировок</h2>
+                    <!-- Кнопка поменьше сверху -->
+                    <a href="/Workout/Create" class="btn btn-small">Создать тренировку</a>
+                </div>
+
+                <!-- Сетка карточек в ряд -->
+                <div class="workout-grid">
+                    @foreach (var workout in Model)
+                    {
+                        <!-- При клике на карточку позже сделаем открытие инфы (например, переход на детали) -->
+                        <div class="workout-card" onclick="location.href='/Workout/Details/@workout.Id'">
+                            <h3 class="workout-title">@workout.Name</h3>
+                            <!-- Выводим дату в красивом формате ДД.ММ.ГГГГ -->
+                            <div class="workout-date">📅 @workout.Date.ToString("dd.MM.yyyy")</div>
+                        </div>
+                    }
+                </div>
+            }
+
         </div>
     </div>
 

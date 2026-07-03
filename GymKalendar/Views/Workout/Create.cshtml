@@ -1,0 +1,97 @@
+﻿@model GymKalendar.Models.CreateWorkoutDto
+
+<form asp-action="Create" method="post" id="workoutForm">
+    <div class="form-group mb-3">
+        <label>Название тренировки</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <div class="form-group mb-3">
+        <label>Описание</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <h4>Упражнения</h4>
+    <div id="exercisesContainer">
+        <div class="exercise-row card p-3 mb-3" data-index="0">
+            <h5>Упражнение #1</h5>
+            <div class="mb-2">
+                <label>Название упражнения</label>
+                <input type="text" name="Exercises[0].NameOfExercise" class="form-control" required />
+            </div>
+            <div class="row">
+                <div class="col-6 mb-2">
+                    <label>Повторения</label>
+                    <input type="text" name="Exercises[0].Reps" class="form-control" />
+                </div>
+                <div class="col-6 mb-2">
+                    <label>Вес</label>
+                    <input type="text" name="Exercises[0].Weight" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="addExerciseBtn" class="btn btn-secondary mb-3">Добавить упражнение</button>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Сохранить тренировку</button>
+</form>
+
+@section Scripts {
+    <script>
+        let exerciseIndex = 1; // Так как индекс 0 уже на странице
+
+        document.getElementById('addExerciseBtn').addEventListener('click', function () {
+            const container = document.getElementById('exercisesContainer');
+
+            // Создаем новый блок упражнения с динамическим индексом
+            const exerciseHtml = `
+                <div class="exercise-row card p-3 mb-3" data-index="${exerciseIndex}">
+                    <h5>Упражнение #${exerciseIndex + 1}</h5>
+                    <div class="mb-2">
+                        <label>Название упражнения</label>
+                        <input type="text" name="Exercises[${exerciseIndex}].NameOfExercise" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <label>Повторения</label>
+                            <input type="text" name="Exercises[${exerciseIndex}].Reps" class="form-control" />
+                        </div>
+                        <div class="col-6 mb-2">
+                            <label>Вес</label>
+                            <input type="text" name="Exercises[${exerciseIndex}].Weight" class="form-control" />
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-exercise-btn mt-2">Удалить</button>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', exerciseHtml);
+            exerciseIndex++;
+        });
+
+        // Функция удаления упражнения (опционально, но полезно)
+        document.getElementById('exercisesContainer').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-exercise-btn')) {
+                e.target.closest('.exercise-row').remove();
+                reIndexExercises();
+            }
+        });
+
+        // Если удалили упражнение из середины, нужно пересобрать индексы (0, 1, 2...), чтобы MVC не потерял данные
+        function reIndexExercises() {
+            const rows = document.querySelectorAll('.exercise-row');
+            exerciseIndex = 0;
+            rows.forEach((row) => {
+                row.setAttribute('data-index', exerciseIndex);
+                row.querySelector('h5').innerText = `Упражнение #${exerciseIndex + 1}`;
+
+                row.querySelector('input[name$=".NameOfExercise"]').setAttribute('name', `Exercises[${exerciseIndex}].NameOfExercise`);
+                row.querySelector('input[name$=".Reps"]').setAttribute('name', `Exercises[${exerciseIndex}].Reps`);
+                row.querySelector('input[name$=".Weight"]').setAttribute('name', `Exercises[${exerciseIndex}].Weight`);
+
+                exerciseIndex++;
+            });
+        }
+    </script>
+}
