@@ -1,68 +1,112 @@
 ﻿@model GymKalendar.Models.CreateWorkoutDto
 
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Создание тренировки</title>
+    <link rel="stylesheet" href="~/css/create.css" />
+</head>
+
+
 <form asp-action="Create" method="post" id="workoutForm">
-    <div class="form-group mb-3">
-        <label>Название тренировки</label>
-        <input asp-for="Name" class="form-control" required />
-    </div>
-    <div class="form-group mb-3">
-        <label>Описание</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    <h4>Упражнения</h4>
-    <div id="exercisesContainer">
-        <div class="exercise-row card p-3 mb-3" data-index="0">
-            <h5>Упражнение #1</h5>
-            <div class="mb-2">
-                <label>Название упражнения</label>
-                <input type="text" name="Exercises[0].NameOfExercise" class="form-control" required />
-            </div>
-            <div class="row">
-                <div class="col-6 mb-2">
-                    <label>Повторения</label>
-                    <input type="text" name="Exercises[0].Reps" class="form-control" />
-                </div>
-                <div class="col-6 mb-2">
-                    <label>Вес</label>
-                    <input type="text" name="Exercises[0].Weight" class="form-control" />
-                </div>
-            </div>
+    <div class="workout-container my-4">
+        <div class="workout-header mb-4">
+            <h1 class="h2 text-light fw-bold">Новая тренировка</h1>
+            <p class="text-muted">Заполните данные и добавьте упражнения для создания плана.</p>
         </div>
+
+        <form method="post" action="/Workout/Create" autocomplete="off">
+            <div class="card workout-main-card mb-4 border-0">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label for="WorkoutName" class="form-label text-light-muted fw-semibold">Название тренировки</label>
+                        <input type="text" id="WorkoutName" name="Name" class="form-control custom-input" placeholder="Например: День ног, Full Body, Кардио" required />
+                    </div>
+                    <div class="mb-0">
+                        <label for="WorkoutDescription" class="form-label text-light-muted fw-semibold">Описание / Заметки</label>
+                        <textarea id="WorkoutDescription" name="Description" class="form-control custom-input" rows="3" placeholder="Фокус на квадрицепсы, отдых между подходами 2 минуты..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="exercises-section mb-4">
+                <h3 class="h4 text-light fw-bold mb-3">Упражнения</h3>
+
+                <div id="exercisesContainer">
+                    <div class="exercise-row card mb-3 border-0" data-index="0">
+                        <div class="card-body p-4">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
+                                    <input type="text" name="Exercises[0].NameOfExercise" class="form-control custom-input" placeholder="Приседания со штангой, Жим лежа..." required />
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-light-muted small fw-semibold">Повторения</label>
+                                    <input type="number" name="Exercises[0].Reps" class="form-control custom-input" placeholder="10" min="0" />
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
+                                    <input type="number" step="0.5" name="Exercises[0].Weight" class="form-control custom-input" placeholder="80" min="0" />
+                                </div>
+                                <div class="col-12 col-md-2 text-md-end">
+                                    <button type="button" class="btn btn-outline-secondary w-100 disabled" disabled style="opacity: 0.3;">
+                                        <i class="bi bi-trash"></i> Первое
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="addExerciseBtn" class="btn btn-add-exercise w-100 py-3 mt-2 fw-semibold">
+                    <i class="bi bi-plus-lg me-2"></i> Добавить упражнение
+                </button>
+            </div>
+
+            <hr class="border-secondary my-4" />
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-submit-workout btn-lg py-3 fw-bold uppercase-tracking">
+                    Сохранить тренировку
+                </button>
+            </div>
+        </form>
     </div>
-
-    <button type="button" id="addExerciseBtn" class="btn btn-secondary mb-3">Добавить упражнение</button>
-
-    <br />
-    <button type="submit" class="btn btn-primary">Сохранить тренировку</button>
 </form>
+
+
 
 @section Scripts {
     <script>
-        let exerciseIndex = 1; // Так как индекс 0 уже на странице
+        let exerciseIndex = 1; // Индекс 0 уже зашит в HTML
 
         document.getElementById('addExerciseBtn').addEventListener('click', function () {
             const container = document.getElementById('exercisesContainer');
 
-            // Создаем новый блок упражнения с динамическим индексом
+            // Полностью адаптированный под темную тему HTML-шаблон
             const exerciseHtml = `
-                <div class="exercise-row card p-3 mb-3" data-index="${exerciseIndex}">
-                    <h5>Упражнение #${exerciseIndex + 1}</h5>
-                    <div class="mb-2">
-                        <label>Название упражнения</label>
-                        <input type="text" name="Exercises[${exerciseIndex}].NameOfExercise" class="form-control" required />
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-2">
-                            <label>Повторения</label>
-                            <input type="text" name="Exercises[${exerciseIndex}].Reps" class="form-control" />
+                <div class="exercise-row card mb-3 border-0" data-index="${exerciseIndex}">
+                    <div class="card-body p-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
+                                <input type="text" name="Exercises[${exerciseIndex}].NameOfExercise" class="form-control custom-input" placeholder="Приседания со штангой, Жим лежа..." required />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label text-light-muted small fw-semibold">Повторения</label>
+                                <input type="number" name="Exercises[${exerciseIndex}].Reps" class="form-control custom-input" placeholder="10" min="0" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
+                                <input type="number" step="0.5" name="Exercises[${exerciseIndex}].Weight" class="form-control custom-input" placeholder="80" min="0" />
+                            </div>
+                            <div class="col-12 col-md-2 text-md-end">
+                                <button type="button" class="btn btn-danger remove-exercise-btn w-100">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-6 mb-2">
-                            <label>Вес</label>
-                            <input type="text" name="Exercises[${exerciseIndex}].Weight" class="form-control" />
-                        </div>
                     </div>
-                    <button type="button" class="btn btn-danger btn-sm remove-exercise-btn mt-2">Удалить</button>
                 </div>
             `;
 
@@ -70,25 +114,35 @@
             exerciseIndex++;
         });
 
-        // Функция удаления упражнения (опционально, но полезно)
+        // Слушатель удаления (работает через делегирование событий)
         document.getElementById('exercisesContainer').addEventListener('click', function (e) {
-            if (e.target.classList.contains('remove-exercise-btn')) {
-                e.target.closest('.exercise-row').remove();
+            // Проверяем клик по кнопке или по иконке внутри неё
+            const removeBtn = e.target.closest('.remove-exercise-btn');
+
+            // Защита: не удаляем самую первую карточку с индексом 0
+            if (removeBtn && !removeBtn.classList.contains('disabled')) {
+                removeBtn.closest('.exercise-row').remove();
                 reIndexExercises();
             }
         });
 
-        // Если удалили упражнение из середины, нужно пересобрать индексы (0, 1, 2...), чтобы MVC не потерял данные
+        // Функция переиндексации (чтобы ASP.NET Core MVC корректно биндил List<Exercise>)
         function reIndexExercises() {
             const rows = document.querySelectorAll('.exercise-row');
             exerciseIndex = 0;
+
             rows.forEach((row) => {
                 row.setAttribute('data-index', exerciseIndex);
-                row.querySelector('h5').innerText = `Упражнение #${exerciseIndex + 1}`;
 
+                // Корректно обновляем атрибуты name у инпутов
                 row.querySelector('input[name$=".NameOfExercise"]').setAttribute('name', `Exercises[${exerciseIndex}].NameOfExercise`);
-                row.querySelector('input[name$=".Reps"]').setAttribute('name', `Exercises[${exerciseIndex}].Reps`);
-                row.querySelector('input[name$=".Weight"]').setAttribute('name', `Exercises[${exerciseIndex}].Weight`);
+
+                // Для Reps и Weight используем querySelector, так как они гарантированно есть
+                const repsInput = row.querySelector('input[name$=".Reps"]');
+                if (repsInput) repsInput.setAttribute('name', `Exercises[${exerciseIndex}].Reps`);
+
+                const weightInput = row.querySelector('input[name$=".Weight"]');
+                if (weightInput) weightInput.setAttribute('name', `Exercises[${exerciseIndex}].Weight`);
 
                 exerciseIndex++;
             });

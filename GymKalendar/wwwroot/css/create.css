@@ -1,0 +1,138 @@
+﻿/* Основная палитра и стили страницы */
+body {
+    background-color: #12141c; /* Глубокий темный фон */
+    color: #f8f9fa;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Стилизация контейнеров и карточек */
+.workout-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.text-light-muted {
+    color: #a0aec0;
+}
+
+.card {
+    background-color: #1a1f2c; /* Более светлый оттенок для карточек */
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exercise-row.card {
+    border-left: 4px solid #3b82f6; /* Декоративная линия слева (акцентный цвет) */
+    background-color: #1e2538;
+}
+
+    .exercise-row.card:hover {
+        box-shadow: 0 6px 24px rgba(59, 130, 246, 0.15);
+    }
+
+/* Кастомные поля ввода */
+.custom-input {
+    background-color: #131722;
+    border: 1px solid #2d3748;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    transition: all 0.2s ease-in-out;
+}
+
+    .custom-input:focus {
+        background-color: #161b29;
+        border-color: #3b82f6;
+        color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .custom-input::placeholder {
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+
+    /* Настройки для числовых инпутов (убираем стрелочки на мобилках для эстетики, если нужно) */
+    .custom-input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+        .custom-input[type="number"]::-webkit-outer-spin-button,
+        .custom-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+/* Кнопка "Добавить упражнение" */
+.btn-add-exercise {
+    background-color: transparent;
+    border: 2px dashed #2d3748;
+    color: #3b82f6;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+    .btn-add-exercise:hover {
+        background-color: rgba(59, 130, 246, 0.08);
+        border-color: #3b82f6;
+        color: #60a5fa;
+    }
+
+/* Кнопка "Удалить упражнение" */
+.remove-exercise-btn {
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    background-color: #ef4444;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+    .remove-exercise-btn:hover {
+        background-color: #dc2626;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+
+/* Главная кнопка отправки формы */
+.btn-submit-workout {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+}
+
+    .btn-submit-workout:hover {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        color: #ffffff;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        transform: translateY(-1px);
+    }
+
+    .btn-submit-workout:active {
+        transform: translateY(1px);
+    }
+
+/* Дополнительные утилиты */
+.uppercase-tracking {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 767.98px) {
+    .card-body {
+        padding: 1.25rem !important;
+    }
+
+    .exercise-row.card {
+        border-left: none;
+        border-top: 4px solid #3b82f6; /* На мобилке линию лучше перенести наверх */
+    }
+
+    .btn-submit-workout, .btn-add-exercise {
+        padding: 1rem !important;
+    }
+}

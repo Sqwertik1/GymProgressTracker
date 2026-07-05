@@ -1,37 +1,131 @@
 ﻿@model GymKalendar.Models.LoginViewModel
-
 @{
-  Layout = null;
+    Layout = null;
 }
-
-
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Login</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вход — GymKalendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+            /* Переиспользуем и адаптируем глобальные стили */
+            body {
+                background-color: #12141c;
+                color: #f8f9fa;
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .auth-card {
+                background-color: #1a1f2c;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+                width: 100%;
+                max-width: 420px;
+                border-top: 4px solid #3b82f6; /* Акцентная линия сверху */
+            }
+
+            .custom-input {
+                background-color: #131722;
+                border: 1px solid #2d3748;
+                color: #ffffff;
+                border-radius: 8px;
+                padding: 0.75rem 1rem;
+                transition: all 0.2s ease-in-out;
+            }
+
+                .custom-input:focus {
+                    background-color: #161b29;
+                    border-color: #3b82f6;
+                    color: #ffffff;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+                }
+
+            .btn-submit-auth {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: #ffffff;
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+                transition: all 0.2s ease;
+            }
+
+                .btn-submit-auth:hover {
+                    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+                    color: #ffffff;
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+                    transform: translateY(-1px);
+                }
+
+            .text-light-muted {
+                color: #a0aec0;
+            }
+
+            .auth-link {
+                color: #3b82f6;
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+
+                .auth-link:hover {
+                    color: #60a5fa;
+                    text-decoration: underline;
+                }
+            /* Кастомный блок ошибок валидации в стиле темной темы */
+            .validation-summary-errors ul {
+                list-style: none;
+                padding-left: 0;
+                margin-bottom: 0;
+            }
+    </style>
 </head>
 <body>
-    <form asp-controller="Home" asp-action="Login" method="post">
-        <div class="title">
-            <h1>Вход</h1>
-        </div>
 
-        <div asp-validation-summary="All" style="color:red;"></div>
+    <div class="p-3 w-100 d-flex justify-content-center">
+        <div class="card auth-card border-0">
+            <div class="card-body p-4 p-sm-5">
 
-        <div>
-            <label>Почта или номер телефона:</label>
-            <input asp-for="LoginInput" />
-        </div>
-        <div>
-            <label>Пароль:</label>
-            <input asp-for="Password" type="password" />
-        </div>
+                <div class="text-center mb-4">
+                    <h1 class="h3 text-light fw-bold mb-1">Вход</h1>
+                    <p class="text-light-muted small">Добро пожаловать в GymKalendar</p>
+                </div>
 
-        <button type="submit">Войти</button>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger bg-danger-subtle border-0 text-danger small p-3 mb-4 rounded-3"></div>
+                }
 
-        <div class="link">
-            <a href="/Home/Register">Регистрация</a>
+                <form asp-controller="Home" asp-action="Login" method="post" autocomplete="off">
+                    <div class="mb-3">
+                        <label asp-for="LoginInput" class="form-label text-light-muted small fw-semibold">Почта или номер телефона</label>
+                        <input asp-for="LoginInput" class="form-control custom-input" placeholder="example@mail.com или +358..." required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label text-light-muted small fw-semibold">Пароль</label>
+                        <input asp-for="Password" type="password" class="form-control custom-input" placeholder="••••••••" required />
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-submit-auth py-2.5 fw-bold">Войти</button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <span class="text-light-muted small">Нет аккаунта?</span>
+                        <a href="/Home/Register" class="auth-link small fw-semibold ms-1">Регистрация</a>
+                    </div>
+                </form>
+
+            </div>
         </div>
-    </form>
+    </div>
+
 </body>
-</html>
+</html>>
