@@ -63,5 +63,21 @@ namespace GymKalendar.Controllers
         }
 
 
-    }
+        public IActionResult Details(int id)
+        {
+            var workouts = _db.Workouts
+                .Include(w => w.Exercises)
+                .FirstOrDefault(w => w.Id == id);
+
+            if(workouts == null)
+                return NotFound();
+
+
+            return View(workouts);
+
+
+        } 
+
+
 }
+}   
