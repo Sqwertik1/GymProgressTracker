@@ -69,23 +69,31 @@ namespace GymKalendar.Controllers
                 return View(dto);
             }
 
-
             // --- МАГИЯ АВТОРИЗАЦИИ MVC НАЧИНАЕТСЯ ТУТ ---
 
-            // 1. Создаем список "Клеймов" (Утверждений о пользователе). 
-            // Это инфа, которую сервер зашьет внутрь куки, чтобы всегда знать, кто залогинен.
+            // 1. Создаем список "Клеймов" (Утверждений о пользователе)
             var claims = new List<Claim>
-    {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Зашиваем ID
-            new Claim(ClaimTypes.Name, user.FirstName)               // Зашиваем Имя
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Зашиваем ID
+                new Claim(ClaimTypes.Name, user.FirstName)               // Зашиваем Имя
+            };
 
-            // 2. Создаем удостоверение личности и говорим, что оно работает на куках
-            var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
+            // 2. Создаем удостоверение личности с правильной схемой
+            var claimsIdentity = new ClaimsIdentity(claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // 3. Выписываем "паспорт" браузеру! 
-            // Движок ASP.NET Core сам создаст зашифрованный куки-файл и отправит его в браузер пользователя.
-            await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
+            // 3. Настраиваем долговечность (Запоминаем твой ПК)
+            var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                IsPersistent = true, // Кука становится постоянной
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30) // Сохраняем в браузере на 30 дней
+            };
+
+            // 4. Выписываем постоянный "паспорт" браузеру!
+            await HttpContext.SignInAsync(
+                "CookieAuth",
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties
+            );
 
             // --- КОНЕЦ МАГИИ ---
 
@@ -100,11 +108,23 @@ namespace GymKalendar.Controllers
 
         public IActionResult Register()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Dashboard"); // Твой контроллер кабинета
+            }
+
+
             return View();
         }
 
         public IActionResult Login()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Dashboard"); // Твой контроллер кабинета
+            }
+
+
             return View();
         }
         

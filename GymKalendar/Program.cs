@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using GymKalendar.Data;
 using GymKalendar.Models;
 using GymKalendar.Controllers;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,10 +20,20 @@ builder.Services.AddAuthentication("CookieAuth")
     {
         options.Cookie.Name = "GymKalendar.Auth"; // Имя куки-файла в браузере
         options.LoginPath = "/Home/Login";        // Куда слать юзера, если он не авторизован
+        options.ExpireTimeSpan = TimeSpan.FromDays(30); // Кука будет валидна на сервере 30 дней
+        options.SlidingExpiration = true; // Продлевать срок действия, если ты активно пользуешься сайтом
     });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+string keysFolder = Path.Combine(builder.Environment.ContentRootPath, ".auth-keys");
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
+    .SetApplicationName("GymKalendar");
+
+
 
 var app = builder.Build();
 
