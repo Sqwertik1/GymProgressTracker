@@ -149,6 +149,12 @@
                         <span class="info-label">Уровень активности:</span>
                         <span class="info-value">@(Model.ActivityLevel > 0 ? $"{Model.ActivityLevel} / 5" : "—")</span>
                     </div>
+                    <div class="info-row mt-3 pt-3 border-top border-secondary">
+                        <span class="info-label text-success fw-bold">Твой примерный расход ккал:</span>
+                        <span class="info-value text-success fw-bold">
+                            @(Model.Calories > 0 ? $"{Model.Calories} ккал / день" : "Заполните данные для расчета")
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

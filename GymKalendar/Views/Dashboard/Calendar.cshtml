@@ -1,0 +1,213 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Календарь тренировок";
+
+    // Вычисляем точку старта: ровно 1 год назад от сегодняшнего дня
+    DateTime startDate = DateTime.Today.AddYears(-1);
+    // Конечная точка — декабрь 2030 года
+    DateTime endDate = new DateTime(2030, 12, 31);
+
+    // Запоминаем текущий месяц и год, чтобы JS смог их найти на странице
+    string currentMonthId = $"month-{DateTime.Today.Year}-{DateTime.Today.Month}";
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — GymKalendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+            body {
+                background-color: #12141c;
+                color: #f8f9fa;
+                font-family: system-ui, -apple-system, sans-serif;
+                padding: 30px 0;
+            }
+            /* Сделали контейнер шире, чтобы помещалось больше месяцев в ряд */
+            .calendar-wide-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 15px;
+            }
+
+            .month-box {
+                background-color: #1a1f2c;
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 24px;
+                border: 1px solid #2d3748;
+                transition: border-color 0.2s ease;
+            }
+                /* Подсветка текущего месяца тонкой рамкой */
+                .month-box.current-month {
+                    border-color: #198754;
+                }
+
+            .days-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 6px;
+                text-align: center;
+            }
+
+            .day-name {
+                font-weight: 600;
+                color: #a0aec0;
+                font-size: 0.8rem;
+                padding-bottom: 5px;
+            }
+
+            .day-cell {
+                aspect-ratio: 1;
+                background-color: #2d3748;
+                color: #ffffff;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 500;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.15s ease;
+                user-select: none;
+            }
+
+                .day-cell:hover {
+                    background-color: #4a5568;
+                }
+
+                .day-cell.trained {
+                    background-color: #198754 !important;
+                    box-shadow: 0 0 8px rgba(25, 135, 84, 0.4);
+                }
+
+            .empty-cell {
+                aspect-ratio: 1;
+            }
+
+            .legend-dot {
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+                display: inline-block;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="calendar-wide-container">
+
+        <div class="mb-4">
+            <a asp-action="Index" class="text-decoration-none text-success fw-medium">
+                <i class="bi bi-arrow-left me-2"></i> Вернуться в профиль
+            </a>
+        </div>
+
+        <div class="text-center mb-5">
+            <h1 class="h2 fw-bold m-0">Календарь тренировок</h1>
+            <div class="d-inline-flex gap-4 mt-3 px-4 py-2 rounded" style="background-color: #1a1f2c;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="legend-dot" style="background-color: #198754;"></span>
+                    <span class="small text-light-muted">День в зале</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="legend-dot" style="background-color: #2d3748;"></span>
+                    <span class="small text-light-muted">Остальные дни</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+            @* 1. ЦИКЛ: Перебираем месяцы *@
+            @for (DateTime date = new DateTime(startDate.Year, startDate.Month, 1); date <= endDate; date = date.AddMonths(1))
+            {
+                string monthName = date.ToString("MMMM", new System.Globalization.CultureInfo("ru-RU"));
+                monthName = char.ToUpper(monthName[0]) + monthName.Substring(1) + " " + date.Year;
+
+                int daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
+                int dayOfWeekOffset = ((int)date.DayOfWeek + 6) % 7;
+
+                bool isCurrent = (date.Year == DateTime.Today.Year && date.Month == DateTime.Today.Month);
+                string boxClass = isCurrent ? "month-box current-month" : "month-box";
+                string monthId = $"month-{date.Year}-{date.Month}";
+
+                <div class="col">
+                    <div class="@boxClass" id="@monthId">
+                        <h4 class="fw-bold mb-3 h5 d-flex justify-content-between align-items-center">
+                            <span>@monthName</span>
+                            @if (isCurrent)
+                            {
+                                <span class="badge bg-success font-monospace" style="font-size: 0.65rem;">ТЕКУЩИЙ</span>
+                            }
+                        </h4>
+
+                        <div class="days-grid">
+                            <div class="day-name">Пн</div>
+                            <div class="day-name">Вт</div>
+                            <div class="day-name">Ср</div>
+                            <div class="day-name">Чт</div>
+                            <div class="day-name">Пт</div>
+                            <div class="day-name">Сб</div>
+                            <div class="day-name">Вс</div>
+
+                            @* 2. ЦИКЛ: Пустые заглушки для правильного смещения дней недели *@
+                            @for (int i = 0; i < dayOfWeekOffset; i++)
+                            {
+                                <div class="empty-cell"></div>
+                            }
+
+                            @* 3. ЦИКЛ: Выводим сами дни месяца *@
+                            @for (int day = 1; day <= daysInMonth; day++)
+                            {
+                                // Формируем дату-строку для сверки (например, "2026-07-11")
+                                string fullDateStr = new DateTime(date.Year, date.Month, day).ToString("yyyy-MM-dd");
+
+                                // Проверяем, есть ли этот день в списке тренировок из базы данных
+                                bool isTrained = ViewBag.TrainedDays != null && ((List<string>)ViewBag.TrainedDays).Contains(fullDateStr);
+                                string trainedClass = isTrained ? "day-cell trained" : "day-cell";
+
+                                <div class="@trainedClass" data-date="@fullDateStr" onclick="toggleDay(this)">
+                                    @day
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+            // Функция клика: отправляет POST-запрос на бэкенд и красит квадратик
+            function toggleDay(element) {
+                const dateStr = element.getAttribute('data-date');
+
+                fetch('/Dashboard/ToggleDay?dateString=' + dateStr, {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Если база данных успешно обновилась, меняем цвет на зеленый/серый
+                        element.classList.toggle('trained');
+                    } else {
+                        alert('Не удалось сохранить день тренировки.');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+            }
+
+            // Автоскролл к текущему месяцу при входе
+            document.addEventListener("DOMContentLoaded", function () {
+                const currentMonthElement = document.getElementById("@currentMonthId");
+                if (currentMonthElement) {
+                    currentMonthElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+    </script>
+
+</body>
+</html>

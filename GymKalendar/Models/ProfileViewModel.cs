@@ -22,6 +22,8 @@
 
         public int ActivityLevel { get; set; }
 
+        public double Calories { get; set; }
+
 
     }
 }

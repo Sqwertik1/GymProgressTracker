@@ -15,6 +15,7 @@ namespace GymKalendar.Data
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<UserData> UsersData { get; set; }
+        public DbSet<WorkoutDay> WorkoutDays { get; set; }
 
 
     }
