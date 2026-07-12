@@ -87,6 +87,12 @@ namespace GymKalendar.Controllers
                 return BadRequest();
             }
 
+            if (targetDate.Date > DateTime.Today)
+            {
+                return BadRequest();
+            }
+
+
             // Ищем, есть ли уже такая тренировка у юзера в этот день
             var existingWorkout = _db.WorkoutDays
                 .FirstOrDefault(w => w.UserId == currentUserId && w.Date == targetDate.Date);
