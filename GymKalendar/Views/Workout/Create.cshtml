@@ -1,151 +1,453 @@
 ﻿@model GymKalendar.Models.CreateWorkoutDto
-
+@{
+    Layout = null;
+    ViewData["Title"] = "Новая тренировка";
+    Context.Response.Headers["X-Disable-Layout"] = "true";
+}
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Создание тренировки</title>
-    <link rel="stylesheet" href="~/css/create.css" />
+    <title>@ViewData["Title"] — GymKalendar</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+            :root {
+                --bg-main: #0b0d13;
+                --bg-card: #141824;
+                --bg-sidebar: #111420;
+                --border-color: #242b3e;
+                --neon-blue: #3b82f6;
+                --neon-lime: #ccff00;
+            }
+
+            body {
+                background-color: var(--bg-main);
+                color: #f8f9fa;
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                min-height: 100vh;
+            }
+
+            .app-layout {
+                display: flex;
+                width: 100%;
+            }
+
+            /* --- SIDEBAR --- */
+            .sidebar {
+                width: 280px;
+                background-color: var(--bg-sidebar);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 30px 20px;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 100;
+            }
+
+            .brand-logo {
+                font-size: 1.4rem;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                background: linear-gradient(135deg, #3b82f6 0%, #ccff00 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 35px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-item-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                color: #8a99ad;
+                text-decoration: none;
+                font-weight: 500;
+                border-radius: 12px;
+                transition: all 0.25s ease;
+            }
+
+                .nav-item-link:hover {
+                    background-color: rgba(59, 130, 246, 0.1);
+                    color: #ffffff;
+                }
+
+            .sidebar-footer {
+                border-top: 1px solid var(--border-color);
+                padding-top: 20px;
+            }
+
+            .btn-logout {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                background: transparent;
+                border: 1px solid rgba(220, 53, 69, 0.2);
+                color: #ea868f;
+                padding: 12px 16px;
+                border-radius: 12px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+                .btn-logout:hover {
+                    background: rgba(220, 53, 69, 0.1);
+                    color: #ffffff;
+                    border-color: #dc3545;
+                }
+
+            /* --- MAIN CONTENT & FORM --- */
+            .main-content {
+                margin-left: 280px;
+                flex-grow: 1;
+                padding: 40px 24px;
+                width: calc(100% - 280px);
+                animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            .form-container {
+                max-width: 650px;
+                margin: 0 auto;
+            }
+
+            .workout-main-card, .exercise-row {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 16px;
+            }
+
+            /* Исправленный инпут: теперь текст и плейсхолдеры всегда белые */
+            .custom-input {
+                background-color: #0b0d13 !important;
+                border: 1px solid var(--border-color) !important;
+                color: #ffffff !important;
+                border-radius: 10px;
+                padding: 12px;
+            }
+
+                .custom-input::placeholder {
+                    color: #4a5568 !important;
+                    opacity: 1;
+                }
+
+                .custom-input:focus {
+                    background-color: #111522 !important;
+                    border-color: var(--neon-blue) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                }
+
+            .btn-add-exercise {
+                background-color: transparent;
+                border: 2px dashed var(--border-color);
+                color: #8a99ad;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+            }
+
+                .btn-add-exercise:hover {
+                    border-color: var(--neon-blue);
+                    color: #ffffff;
+                    background-color: rgba(59, 130, 246, 0.05);
+                }
+
+            .btn-submit-workout {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: #ffffff;
+                border: none;
+                border-radius: 12px;
+                font-weight: 700;
+                box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            }
+
+                .btn-submit-workout:hover {
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+                    transform: translateY(-1px);
+                    color: #ffffff;
+                }
+
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @@media (max-width: 992px) {
+                body {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    padding: 20px;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border-color);
+                }
+
+                .nav-menu {
+                    flex-direction: row;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .sidebar-footer {
+                    display: none;
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 24px;
+                    width: 100%;
+                }
+
+                .form-container {
+                    max-width: 100%;
+                }
+
+                .mobile-logout-wrapper {
+                    display: block !important;
+                }
+            }
+    </style>
 </head>
+<body>
 
+    <div class="app-layout w-100">
 
-<form asp-action="Create" method="post" id="workoutForm">
-    <div class="workout-container my-4">
-        <div class="workout-header mb-4">
-            <h1 class="h2 text-light fw-bold">Новая тренировка</h1>
-            <p class="text-muted">Заполните данные и добавьте упражнения для создания плана.</p>
-        </div>
-
-        <form method="post" action="/Workout/Create" autocomplete="off">
-            <div class="card workout-main-card mb-4 border-0">
-                <div class="card-body p-4">
-                    <div class="mb-3">
-                        <label for="WorkoutName" class="form-label text-light-muted fw-semibold">Название тренировки</label>
-                        <input type="text" id="WorkoutName" name="Name" class="form-control custom-input" placeholder="Например: День ног, Full Body, Кардио" required />
-                    </div>
-                    <div class="mb-0">
-                        <label for="WorkoutDescription" class="form-label text-light-muted fw-semibold">Описание / Заметки</label>
-                        <textarea id="WorkoutDescription" name="Description" class="form-control custom-input" rows="3" placeholder="Фокус на квадрицепсы, отдых между подходами 2 минуты..."></textarea>
-                    </div>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-logo">
+                    <i class="bi bi-lightning-charge-fill text-primary"></i>
+                    <span>GymKalendar</span>
                 </div>
+
+                <nav class="nav-menu">
+                    <a href="/Dashboard/Index" class="nav-item-link">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Главный экран</span>
+                    </a>
+                    <a asp-controller="Workout" asp-action="Templates" class="nav-item-link">
+                        <i class="bi bi-journal-bookmark-fill text-info"></i>
+                        <span>Мои шаблоны</span>
+                    </a>
+                    <a href="/Profile/Index" class="nav-item-link">
+                        <i class="bi bi-person-gear"></i>
+                        <span>Настройки профиля</span>
+                    </a>
+                    <a asp-controller="Dashboard" asp-action="Calendar" class="nav-item-link">
+                        <i class="bi bi-calendar3-event text-warning"></i>
+                        <span>Календарь занятий</span>
+                    </a>
+                </nav>
             </div>
 
-            <div class="exercises-section mb-4">
-                <h3 class="h4 text-light fw-bold mb-3">Упражнения</h3>
+            <div class="sidebar-footer">
+                <form asp-controller="Dashboard" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Выйти из системы</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
 
-                <div id="exercisesContainer">
-                    <div class="exercise-row card mb-3 border-0" data-index="0">
+        <!-- CONTENT -->
+        <main class="main-content">
+            <div class="form-container">
+
+                <form asp-action="Create" method="post" id="workoutForm" autocomplete="off">
+                    <div class="mb-4">
+                        <h1 class="h2 text-light fw-bold m-0">Новая тренировка</h1>
+                        <p class="text-light m-0 mt-1">Заполните данные и добавьте упражнения для создания плана.</p>
+                    </div>
+
+                    <div class="card workout-main-card mb-4 border-0">
                         <div class="card-body p-4">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
-                                    <input type="text" name="Exercises[0].NameOfExercise" class="form-control custom-input" placeholder="Приседания со штангой, Жим лежа..." required />
-                                </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-light-muted small fw-semibold">Повторения</label>
-                                    <input type="number" name="Exercises[0].Reps" class="form-control custom-input" placeholder="10" min="0" />
-                                </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
-                                    <input type="number" step="0.5" name="Exercises[0].Weight" class="form-control custom-input" placeholder="80" min="0" />
-                                </div>
-                                <div class="col-12 col-md-2 text-md-end">
-                                    <button type="button" class="btn btn-outline-secondary w-100 disabled" disabled style="opacity: 0.3;">
-                                        <i class="bi bi-trash"></i> Первое
-                                    </button>
-                                </div>
+                            <div class="mb-3">
+                                <label for="WorkoutName" class="form-label text-light small fw-semibold">Название тренировки</label>
+                                <input type="text" id="WorkoutName" name="Name" value="@Model?.Name" class="form-control custom-input" placeholder="Например: День ног, Full Body" required />
+                            </div>
+                            <div class="mb-0">
+                                <label for="WorkoutDescription" class="form-label text-light small fw-semibold">Описание / Заметки</label>
+                                <textarea id="WorkoutDescription" name="Description" class="form-control custom-input" rows="3" placeholder="Заметки по отдыху или фокусу...">@Model?.Description</textarea>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <button type="button" id="addExerciseBtn" class="btn btn-add-exercise w-100 py-3 mt-2 fw-semibold">
-                    <i class="bi bi-plus-lg me-2"></i> Добавить упражнение
-                </button>
+                    <div class="exercises-section mb-4">
+                        <h3 class="h5 text-light fw-bold mb-3">Упражнения</h3>
+                        <div id="exercisesContainer">
+                            @if (Model?.Exercises != null && Model.Exercises.Count > 0)
+                            {
+                                @for (int i = 0; i < Model.Exercises.Count; i++)
+                                {
+                                    <div class="exercise-row card mb-3 border-0" data-index="@i">
+                                        <div class="card-body p-4">
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label text-light small fw-semibold">Название упражнения</label>
+                                                    <input type="text" name="Exercises[@i].NameOfExercise" value="@Model.Exercises[i].NameOfExercise" class="form-control custom-input" required />
+                                                </div>
+                                                <div class="col-6 col-md-2">
+                                                    <label class="form-label text-light-muted small fw-semibold">Повторы</label>
+                                                    <input type="number" name="Exercises[@i].Reps" value="@Model.Exercises[i].Reps" class="form-control custom-input" min="0" />
+                                                </div>
+                                                <div class="col-6 col-md-2">
+                                                    <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
+                                                    <input type="number" step="0.5" name="Exercises[@i].Weight" value="@Model.Exercises[i].Weight" class="form-control custom-input" min="0" />
+                                                </div>
+                                                <div class="col-12 col-md-2 text-md-end">
+                                                    <button type="button" class="btn btn-danger remove-exercise-btn w-100 @(i == 0 ? "disabled" : "")" @(i == 0 ? "disabled" : "")>
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="exercise-row card mb-3 border-0" data-index="0">
+                                    <div class="card-body p-4">
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
+                                                <input type="text" name="Exercises[0].NameOfExercise" class="form-control custom-input" placeholder="Жим лежа, Приседания..." required />
+                                            </div>
+                                            <div class="col-6 col-md-2">
+                                                <label class="form-label text-light-muted small fw-semibold">Повторы</label>
+                                                <input type="number" name="Exercises[0].Reps" class="form-control custom-input" placeholder="10" min="0" />
+                                            </div>
+                                            <div class="col-6 col-md-2">
+                                                <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
+                                                <input type="number" step="0.5" name="Exercises[0].Weight" class="form-control custom-input" placeholder="80" min="0" />
+                                            </div>
+                                            <div class="col-12 col-md-2 text-md-end">
+                                                <button type="button" class="btn btn-outline-secondary w-100 disabled" disabled style="opacity: 0.3;">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="button" id="addExerciseBtn" class="btn btn-add-exercise w-100 py-3 mt-2 fw-semibold">
+                            <i class="bi bi-plus-lg me-2"></i> Добавить упражнение
+                        </button>
+                    </div>
+
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="submit" class="btn btn-submit-workout btn-lg py-3 fw-bold">
+                            Сохранить тренировку
+                        </button>
+                    </div>
+                </form>
+
             </div>
 
-            <hr class="border-secondary my-4" />
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-submit-workout btn-lg py-3 fw-bold uppercase-tracking">
-                    Сохранить тренировку
-                </button>
+            <!-- Резервный мобильный логаут -->
+            <div class="mobile-logout-wrapper d-none mt-5 pt-3 border-top border-secondary">
+                <form asp-controller="Dashboard" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger w-100 py-2.5">
+                        <i class="bi bi-box-arrow-right me-2"></i>Выйти из аккаунта
+                    </button>
+                </form>
             </div>
-        </form>
+        </main>
     </div>
-</form>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    @section Scripts {
+        <script>
+            let exerciseIndex = @(Model?.Exercises != null && Model.Exercises.Count > 0 ? Model.Exercises.Count : 1);
 
-@section Scripts {
-    <script>
-        let exerciseIndex = 1; // Индекс 0 уже зашит в HTML
-
-        document.getElementById('addExerciseBtn').addEventListener('click', function () {
+            document.getElementById('addExerciseBtn').addEventListener('click', function () {
             const container = document.getElementById('exercisesContainer');
-
-            // Полностью адаптированный под темную тему HTML-шаблон
             const exerciseHtml = `
-                <div class="exercise-row card mb-3 border-0" data-index="${exerciseIndex}">
-                    <div class="card-body p-4">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
-                                <input type="text" name="Exercises[${exerciseIndex}].NameOfExercise" class="form-control custom-input" placeholder="Приседания со штангой, Жим лежа..." required />
-                            </div>
-                            <div class="col-6 col-md-2">
-                                <label class="form-label text-light-muted small fw-semibold">Повторения</label>
-                                <input type="number" name="Exercises[${exerciseIndex}].Reps" class="form-control custom-input" placeholder="10" min="0" />
-                            </div>
-                            <div class="col-6 col-md-2">
-                                <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
-                                <input type="number" step="0.5" name="Exercises[${exerciseIndex}].Weight" class="form-control custom-input" placeholder="80" min="0" />
-                            </div>
-                            <div class="col-12 col-md-2 text-md-end">
-                                <button type="button" class="btn btn-danger remove-exercise-btn w-100">
-                                    <i class="bi bi-trash"></i> Удалить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
+            <div class="exercise-row card mb-3 border-0" data-index="${exerciseIndex}">
+            <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-6">
+            <label class="form-label text-light-muted small fw-semibold">Название упражнения</label>
+            <input type="text" name="Exercises[${exerciseIndex}].NameOfExercise" class="form-control custom-input" required />
+            </div>
+            <div class="col-6 col-md-2">
+            <label class="form-label text-light-muted small fw-semibold">Повторы</label>
+            <input type="number" name="Exercises[${exerciseIndex}].Reps" class="form-control custom-input" min="0" />
+            </div>
+            <div class="col-6 col-md-2">
+            <label class="form-label text-light-muted small fw-semibold">Вес (кг)</label>
+            <input type="number" step="0.5" name="Exercises[${exerciseIndex}].Weight" class="form-control custom-input" min="0" />
+            </div>
+            <div class="col-12 col-md-2 text-md-end">
+            <button type="button" class="btn btn-danger remove-exercise-btn w-100"><i class="bi bi-trash"></i></button>
+            </div>
+            </div>
+            </div>
+            </div>`;
             container.insertAdjacentHTML('beforeend', exerciseHtml);
             exerciseIndex++;
-        });
+            });
 
-        // Слушатель удаления (работает через делегирование событий)
-        document.getElementById('exercisesContainer').addEventListener('click', function (e) {
-            // Проверяем клик по кнопке или по иконке внутри неё
+            document.getElementById('exercisesContainer').addEventListener('click', function (e) {
             const removeBtn = e.target.closest('.remove-exercise-btn');
-
-            // Защита: не удаляем самую первую карточку с индексом 0
             if (removeBtn && !removeBtn.classList.contains('disabled')) {
-                removeBtn.closest('.exercise-row').remove();
-                reIndexExercises();
+            removeBtn.closest('.exercise-row').remove();
+            reIndexExercises();
             }
-        });
+            });
 
-        // Функция переиндексации (чтобы ASP.NET Core MVC корректно биндил List<Exercise>)
-        function reIndexExercises() {
+            function reIndexExercises() {
             const rows = document.querySelectorAll('.exercise-row');
             exerciseIndex = 0;
-
             rows.forEach((row) => {
-                row.setAttribute('data-index', exerciseIndex);
-
-                // Корректно обновляем атрибуты name у инпутов
-                row.querySelector('input[name$=".NameOfExercise"]').setAttribute('name', `Exercises[${exerciseIndex}].NameOfExercise`);
-
-                // Для Reps и Weight используем querySelector, так как они гарантированно есть
-                const repsInput = row.querySelector('input[name$=".Reps"]');
-                if (repsInput) repsInput.setAttribute('name', `Exercises[${exerciseIndex}].Reps`);
-
-                const weightInput = row.querySelector('input[name$=".Weight"]');
-                if (weightInput) weightInput.setAttribute('name', `Exercises[${exerciseIndex}].Weight`);
-
-                exerciseIndex++;
+            row.setAttribute('data-index', exerciseIndex);
+            row.querySelector('input[name$=".NameOfExercise"]').setAttribute('name', `Exercises[${exerciseIndex}].NameOfExercise`);
+            const repsInput = row.querySelector('input[name$=".Reps"]');
+            if (repsInput) repsInput.setAttribute('name', `Exercises[${exerciseIndex}].Reps`);
+            const weightInput = row.querySelector('input[name$=".Weight"]');
+            if (weightInput) weightInput.setAttribute('name', `Exercises[${exerciseIndex}].Weight`);
+            exerciseIndex++;
             });
-        }
-    </script>
-}
+            }
+        </script>
+    }
+</body>
+</html>

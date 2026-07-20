@@ -2,6 +2,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Профиль пользователя";
+    Context.Response.Headers["X-Disable-Layout"] = "true";
 }
 <!DOCTYPE html>
 <html lang="ru">
@@ -9,42 +10,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] — GymKalendar</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
+            :root {
+                --bg-main: #0b0d13;
+                --bg-card: #141824;
+                --bg-sidebar: #111420;
+                --border-color: #242b3e;
+                --neon-blue: #3b82f6;
+                --neon-lime: #ccff00;
+                --neon-green: #00ff87;
+            }
+
             body {
-                background-color: #12141c;
+                background-color: var(--bg-main);
                 color: #f8f9fa;
                 font-family: 'Inter', system-ui, -apple-system, sans-serif;
-                padding: 40px 0;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                min-height: 100vh;
             }
 
-            .container {
-                max-width: 600px;
+            .app-layout {
+                display: flex;
+                width: 100%;
             }
 
-            .text-light-muted {
-                color: #a0aec0;
+            /* --- SIDEBAR --- */
+            .sidebar {
+                width: 280px;
+                background-color: var(--bg-sidebar);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 30px 20px;
+                position: fixed;
+                height: 100vh;
+                z-index: 100;
             }
 
-            .text-accent-blue {
-                color: #3b82f6;
+            .main-content {
+                margin-left: 280px;
+                flex-grow: 1;
+                padding: 40px;
+                width: calc(100% - 280px);
+                max-width: 1000px;
+                animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            .brand-logo {
+                font-size: 1.4rem;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                background: linear-gradient(135deg, #3b82f6 0%, #ccff00 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 35px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-item-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                color: #8a99ad;
+                text-decoration: none;
+                font-weight: 500;
+                border-radius: 12px;
+                transition: all 0.25s ease;
+            }
+
+                .nav-item-link:hover {
+                    background-color: rgba(59, 130, 246, 0.1);
+                    color: #ffffff;
+                }
+
+                /* На этой странице активны Настройки профиля */
+                .nav-item-link.active {
+                    border-left: 3px solid var(--neon-blue);
+                    background-color: #1a2035;
+                    color: #ffffff;
+                }
+
+            .sidebar-footer {
+                border-top: 1px solid var(--border-color);
+                padding-top: 20px;
+            }
+
+            .btn-logout {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                background: transparent;
+                border: 1px solid rgba(220, 53, 69, 0.2);
+                color: #ea868f;
+                padding: 12px 16px;
+                border-radius: 12px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+                .btn-logout:hover {
+                    background: rgba(220, 53, 69, 0.1);
+                    color: #ffffff;
+                    border-color: #dc3545;
+                }
+
+            /* --- КАРТОЧКИ И ДАННЫЕ --- */
+            .page-title {
+                font-size: 2.2rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
 
             .profile-card {
-                background-color: #1a1f2c;
-                border-radius: 16px;
-                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 18px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             }
-            /* Стилизация строк с данными */
+
             .info-row {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 12px 0;
-                border-bottom: 1px solid #2d3748;
+                padding: 14px 0;
+                border-bottom: 1px solid var(--border-color);
             }
 
                 .info-row:last-child {
@@ -52,7 +163,7 @@
                 }
 
             .info-label {
-                color: #a0aec0;
+                color: #8a99ad;
                 font-weight: 500;
             }
 
@@ -60,111 +171,226 @@
                 color: #ffffff;
                 font-weight: 600;
             }
-            /* Главная кнопка */
-            .btn-custom {
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+
+            /* Кастомный блок Ккал */
+            .calories-box {
+                background: linear-gradient(135deg, rgba(0, 255, 135, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%);
+                border: 1px dashed rgba(0, 255, 135, 0.25) !important;
+                border-radius: 12px;
+            }
+
+            .text-neon-green {
+                color: var(--neon-green);
+                text-shadow: 0 0 10px rgba(0, 255, 135, 0.2);
+            }
+
+            .btn-custom-edit {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
                 color: #ffffff;
                 border: none;
-                border-radius: 10px;
+                border-radius: 12px;
                 font-weight: 600;
+                padding: 14px;
                 box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+                text-transform: uppercase;
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
                 transition: all 0.2s ease;
-            }
-
-                .btn-custom:hover {
-                    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-                    color: #ffffff;
-                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
-                    transform: translateY(-1px);
-                }
-
-            .btn-back-dashboard {
-                color: #a0aec0;
                 text-decoration: none;
-                transition: color 0.2s;
+                display: block;
             }
 
-                .btn-back-dashboard:hover {
+                .btn-custom-edit:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
                     color: #ffffff;
                 }
+
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @@media (max-width: 992px) {
+                body {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    padding: 20px;
+                    border-right: none;
+                }
+
+                .nav-menu {
+                    flex-direction: row;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .sidebar-footer {
+                    display: none;
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 24px;
+                    width: 100%;
+                }
+
+                .mobile-logout-wrapper {
+                    display: block !important;
+                }
+            }
     </style>
 </head>
 <body>
 
-    <div class="container px-3">
+    <div class="app-layout w-100">
 
-        <div class="mb-4">
-            <a href="/Dashboard/Index" class="btn-back-dashboard small fw-semibold">
-                <i class="bi bi-arrow-left me-1"></i> Вернуться на главную
-            </a>
-        </div>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-logo">
+                    <i class="bi bi-lightning-charge-fill text-primary"></i>
+                    <span>GymKalendar</span>
+                </div>
 
-        <h2 class="fw-bold mb-4 text-light">Личный кабинет</h2>
+                <nav class="nav-menu">
+                    <a href="/Dashboard/Index" class="nav-item-link">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Главный экран</span>
+                    </a>
+                    <a asp-controller="Workout" asp-action="Templates" class="nav-item-link">
+                        <i class="bi bi-journal-bookmark-fill text-info"></i>
+                        <span>Мои шаблоны</span>
+                    </a>
+                    <!-- Текущая вкладка Активна -->
+                    <a href="#" class="nav-item-link active">
+                        <i class="bi bi-person-gear"></i>
+                        <span>Настройки профиля</span>
+                    </a>
+                    <a asp-controller="Dashboard" asp-action="Calendar" class="nav-item-link">
+                        <i class="bi bi-calendar3-event text-warning"></i>
+                        <span>Календарь занятий</span>
+                    </a>
+                </nav>
+            </div>
 
-        <div class="card profile-card border-0 mb-4">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold text-light mb-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-person-circle text-accent-blue"></i> Основная информация
-                </h3>
-                <div class="info-list">
-                    <div class="info-row">
-                        <span class="info-label">Имя:</span>
-                        <span class="info-value">@Model.Name</span>
+            <div class="sidebar-footer">
+                <form asp-controller="Dashboard" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Выйти из системы</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- ОСНОВНОЙ КОНТЕНТ ПРОФИЛЯ -->
+        <main class="main-content">
+
+            <div class="mb-4">
+                <h1 class="page-title m-0">Личный кабинет</h1>
+                <p class="text-light-muted m-0 mt-1">Просмотр персональной информации и физических показателей.</p>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <!-- Карточка 1: Основная информация -->
+                <div class="col-12 col-lg-6">
+                    <div class="card profile-card border-0 h-100">
+                        <div class="card-body p-4">
+                            <h3 class="h5 fw-bold text-light mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle text-primary"></i> Основная информация
+                            </h3>
+                            <div class="info-list">
+                                <div class="info-row">
+                                    <span class="info-label">Имя:</span>
+                                    <span class="info-value">@Model.Name</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Фамилия:</span>
+                                    <span class="info-value">@(string.IsNullOrEmpty(Model.LastName) ? "—" : Model.LastName)</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Возраст:</span>
+                                    <span class="info-value">@Model.Age</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Email:</span>
+                                    <span class="info-value text-break">@Model.Email</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Телефон:</span>
+                                    <span class="info-value">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Фамилия:</span>
-                        <span class="info-value">@(string.IsNullOrEmpty(Model.LastName) ? "—" : Model.LastName)</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Возраст:</span>
-                        <span class="info-value">@Model.Age</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value text-break">@Model.Email</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Телефон:</span>
-                        <span class="info-value">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</span>
+                </div>
+
+                <!-- Карточка 2: Физические показатели -->
+                <div class="col-12 col-lg-6">
+                    <div class="card profile-card border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <h3 class="h5 fw-bold text-light mb-3 d-flex align-items-center gap-2">
+                                    <i class="bi bi-activity text-primary"></i> Физические показатели
+                                </h3>
+                                <div class="info-list">
+                                    <div class="info-row">
+                                        <span class="info-label">Рост:</span>
+                                        <span class="info-value">@(Model.Height > 0 ? $"{Model.Height} см" : "—")</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Вес:</span>
+                                        <span class="info-value">@(Model.Weight > 0 ? $"{Model.Weight} кг" : "—")</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Уровень активности:</span>
+                                        <span class="info-value">@(Model.ActivityLevel > 0 ? $"{Model.ActivityLevel} / 5" : "—")</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Кастомный блок ккал -->
+                            <div class="info-row calories-box mt-4 p-3">
+                                <span class="info-label fw-semibold text-light">Суточный расход:</span>
+                                <span class="info-value text-neon-green fw-bold">
+                                    @(Model.Calories > 0 ? $"{Model.Calories} ккал" : "Нет данных для расчета")
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card profile-card border-0 mb-4">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold text-light mb-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-activity text-accent-blue"></i> Физические показатели
-                </h3>
-                <div class="info-list">
-                    <div class="info-row">
-                        <span class="info-label">Рост:</span>
-                        <span class="info-value">@(Model.Height > 0 ? $"{Model.Height} см" : "—")</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Вес:</span>
-                        <span class="info-value">@(Model.Weight > 0 ? $"{Model.Weight} кг" : "—")</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Уровень активности:</span>
-                        <span class="info-value">@(Model.ActivityLevel > 0 ? $"{Model.ActivityLevel} / 5" : "—")</span>
-                    </div>
-                    <div class="info-row mt-3 pt-3 border-top border-secondary">
-                        <span class="info-label text-success fw-bold">Твой примерный расход ккал:</span>
-                        <span class="info-value text-success fw-bold">
-                            @(Model.Calories > 0 ? $"{Model.Calories} ккал / день" : "Заполните данные для расчета")
-                        </span>
-                    </div>
-                </div>
+            <!-- Действие -->
+            <div class="pt-2">
+                <a asp-action="Save" class="btn-custom-edit text-center">
+                    <i class="bi bi-pencil-square me-2"></i> Изменить физические данные
+                </a>
             </div>
-        </div>
 
-        <div class="d-grid gap-2">
-            <a asp-action="Save" class="btn btn-custom py-3 text-center">
-                <i class="bi bi-pencil-square me-2"></i> Изменить физические данные
-            </a>
-        </div>
+            <!-- Мобильная кнопка выхода -->
+            <div class="mobile-logout-wrapper d-none mt-5 pt-3 border-top border-secondary">
+                <form asp-controller="Dashboard" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger w-100 py-2.5">
+                        <i class="bi bi-box-arrow-right me-2"></i>Выйти из аккаунта
+                    </button>
+                </form>
+            </div>
 
+        </main>
     </div>
 
 </body>

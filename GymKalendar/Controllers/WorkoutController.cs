@@ -19,9 +19,39 @@ namespace GymKalendar.Controllers
             _db = db;
         }
 
-        public IActionResult Create()
+        public IActionResult Create(int? templateId)
         {
-            return View();
+            var dto = new CreateWorkoutDto
+            {
+                Exercises = new List<ExerciseDto>()
+            };
+
+            if (templateId.HasValue)
+            {
+                var template = _db.WorkoutTemplates
+                    .Include(t => t.Exercises)
+                    .FirstOrDefault(t => t.Id == templateId.Value);
+
+                if (template != null)
+                {
+                    dto.Name = template.Name;
+
+                    foreach (var templateEx in template.Exercises)
+                    {
+                        dto.Exercises.Add(new ExerciseDto
+                        {
+                            NameOfExercise = templateEx.Name,
+                            Reps = "0",
+                            Weight = "0"
+                        });
+                    }
+                }
+            }
+
+      
+
+
+            return View(dto);
         }
 
 
@@ -35,7 +65,7 @@ namespace GymKalendar.Controllers
             var workout = new Workout
             {
                 Name = dto.Name,
-                Description = dto.Description,
+                Description = string.IsNullOrWhiteSpace(dto.Description) ? "" : dto.Description,
                 Date = DateTime.Now,
                 UserId = userId,
                 Exercises = new List<Exercise>()
@@ -121,42 +151,32 @@ namespace GymKalendar.Controllers
             return RedirectToAction("Templates");
         }
 
-        public IActionResult StartWorkoutfromTemplate(int templateId)
+        [HttpPost]
+        public IActionResult DeleteTemplate(int templateId)
         {
             string? userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int userId = int.Parse(userIdStr ?? "0");
 
-            var template = _db.WorkoutTemplates
-                .Include(w => w.Exercises)
-                .FirstOrDefault(w => w.Id == templateId);
 
-            if(template == null)
+            var template = _db.WorkoutTemplates
+                .Include(t => t.Exercises)
+                .FirstOrDefault(w => (w.Id == templateId) && (w.UserId == userId));
+
+            if (template == null) 
             {
                 return NotFound();
             }
-            var newWorkout = new Workout
-            {
-                Name = template.Name,
-                Date = DateTime.Now,
-                UserId = template.UserId
-            };
 
-            foreach(var templateExercise in template.Exercises)
-            {
-                var realExercise = new Exercise 
-                {
-                    NameOfExercise = templateExercise.Name,
-                    Weight = 0,
-                    Reps = 0
-                };
-                newWorkout.Exercises.Add(realExercise);
-            }
-
-            _db.Workouts.Add(newWorkout);
+            _db.WorkoutTemplates.Remove(template);
             _db.SaveChanges();
+            return RedirectToAction("Templates");
 
-            return RedirectToAction("Create", "Workout", new { id = newWorkout.Id });
+        }
 
+        public IActionResult StartWorkoutfromTemplate(int templateId)
+        {
+
+            return RedirectToAction("Create", new { templateId = templateId });
 
         }
 

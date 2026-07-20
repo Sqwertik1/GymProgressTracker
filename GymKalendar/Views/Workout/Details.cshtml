@@ -1,175 +1,339 @@
 ﻿@model GymKalendar.Models.Workout
-
 @{
     Layout = null;
+    ViewData["Title"] = Model.Name;
+    Context.Response.Headers["X-Disable-Layout"] = "true";
 }
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@Model.Name — GymKalendar</title>
+    <title>@ViewData["Title"] — GymKalendar</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-            /* Глобальные стили темной темы GymKalendar */
+            :root {
+                --bg-main: #0b0d13;
+                --bg-card: #141824;
+                --bg-sidebar: #111420;
+                --border-color: #242b3e;
+                --neon-blue: #3b82f6;
+                --neon-lime: #ccff00;
+            }
+
             body {
-                background-color: #12141c;
+                background-color: var(--bg-main);
                 color: #f8f9fa;
                 font-family: 'Inter', system-ui, -apple-system, sans-serif;
-                padding: 40px 0;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                min-height: 100vh;
             }
 
-            .container {
-                max-width: 800px;
+            .app-layout {
+                display: flex;
+                width: 100%;
             }
 
-            .text-light-muted {
-                color: #a0aec0;
+            /* --- SIDEBAR --- */
+            .sidebar {
+                width: 280px;
+                background-color: var(--bg-sidebar);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 30px 20px;
+                position: fixed;
+                height: 100vh;
+                z-index: 100;
             }
 
-            .text-accent-blue {
-                color: #3b82f6;
+            .main-content {
+                margin-left: 280px;
+                flex-grow: 1;
+                padding: 40px 24px;
+                width: calc(100% - 280px);
+                animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
             }
 
-            /* Кнопка Назад */
-            .btn-back {
-                color: #a0aec0;
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.2s ease;
-                display: inline-flex;
+            /* Ограничиваем контент по ширине и центрируем его */
+            .details-container {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+            .brand-logo {
+                font-size: 1.4rem;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                background: linear-gradient(135deg, #3b82f6 0%, #ccff00 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 35px;
+                display: flex;
                 align-items: center;
+                gap: 10px;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
                 gap: 8px;
             }
 
-                .btn-back:hover {
+            .nav-item-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                color: #8a99ad;
+                text-decoration: none;
+                font-weight: 500;
+                border-radius: 12px;
+                transition: all 0.25s ease;
+            }
+
+                .nav-item-link:hover {
+                    background-color: rgba(59, 130, 246, 0.1);
                     color: #ffffff;
                 }
 
-            /* Главная карточка тренировки */
-            .workout-main-card {
-                background-color: #1a1f2c;
-                border-radius: 16px;
-                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
-                border-left: 4px solid #3b82f6;
+            .sidebar-footer {
+                border-top: 1px solid var(--border-color);
+                padding-top: 20px;
             }
 
-            /* Карточки упражнений */
-            .exercise-list-card {
-                background-color: #1a1f2c;
+            .btn-logout {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                background: transparent;
+                border: 1px solid rgba(220, 53, 69, 0.2);
+                color: #ea868f;
+                padding: 12px 16px;
+                border-radius: 12px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+                .btn-logout:hover {
+                    background: rgba(220, 53, 69, 0.1);
+                    color: #ffffff;
+                    border-color: #dc3545;
+                }
+
+            /* --- ДЕТАЛИ --- */
+            .workout-main-card, .exercise-list-card {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
                 border-radius: 16px;
-                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
             }
 
             .exercise-item {
-                background-color: #131722;
-                border: 1px solid #2d3748;
+                background-color: #0b0d13;
+                border: 1px solid var(--border-color);
                 border-radius: 12px;
                 transition: border-color 0.2s ease;
             }
 
                 .exercise-item:hover {
-                    border-color: #3b82f6;
+                    border-color: var(--neon-blue);
                 }
 
             .exercise-badge {
-                background-color: rgba(59, 130, 246, 0.1);
+                background-color: rgba(59, 130, 246, 0.08);
                 color: #60a5fa;
-                border: 1px solid rgba(59, 130, 246, 0.2);
+                border: 1px solid rgba(59, 130, 246, 0.15);
                 font-weight: 600;
                 padding: 6px 12px;
                 border-radius: 8px;
+            }
+
+            .btn-template-action {
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 0.85rem;
+            }
+
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @@media (max-width: 992px) {
+                body {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    padding: 20px;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border-color);
+                }
+
+                .nav-menu {
+                    flex-direction: row;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .sidebar-footer {
+                    display: none;
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 24px;
+                    width: 100%;
+                }
+
+                .details-container {
+                    max-width: 100%;
+                }
             }
     </style>
 </head>
 <body>
 
-    <div class="container px-3">
+    <div class="app-layout w-100">
 
-        <div class="mb-4">
-            <a href="/Dashboard/Index" class="btn-back">
-                <i class="bi bi-arrow-left"></i> Назад в кабинет
-            </a>
-        </div>
-
-        <a asp-controller="Workout"
-           asp-action="CreateTemplateFromWorkout"
-           asp-route-workoutId="@Model.Id"
-           class="btn btn-outline-primary btn-sm">
-            Сохранить как шаблон
-        </a>
-
-        <div class="card workout-main-card border-0 mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                    <h1 class="h2 fw-bold text-light m-0">@Model.Name</h1>
-                    <span class="badge bg-dark-subtle text-accent-blue border border-primary-subtle py-2 px-3 rounded-pill fs-6">
-                        <i class="bi bi-calendar3 me-2"></i>@Model.Date.ToString("dd.MM.yyyy")
-                    </span>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-logo">
+                    <i class="bi bi-lightning-charge-fill text-primary"></i>
+                    <span>GymKalendar</span>
                 </div>
 
-                @if (!string.IsNullOrEmpty(Model.Description))
-                {
-                    <p class="text-light-muted m-0 p-3 rounded-3" style="background-color: #131722; border: 1px solid #2d3748;">
-                        @Model.Description
-                    </p>
-                }
-                else
-                {
-                    <p class="text-muted italic m-0">Описание к этой тренировке не оставлено.</p>
-                }
+                <nav class="nav-menu">
+                    <a href="/Dashboard/Index" class="nav-item-link">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Главный экран</span>
+                    </a>
+                    <a asp-controller="Workout" asp-action="Templates" class="nav-item-link">
+                        <i class="bi bi-journal-bookmark-fill text-info"></i>
+                        <span>Мои шаблоны</span>
+                    </a>
+                    <a href="/Profile/Index" class="nav-item-link">
+                        <i class="bi bi-person-gear"></i>
+                        <span>Настройки профиля</span>
+                    </a>
+                    <a asp-controller="Dashboard" asp-action="Calendar" class="nav-item-link">
+                        <i class="bi bi-calendar3-event text-warning"></i>
+                        <span>Календарь занятий</span>
+                    </a>
+                </nav>
             </div>
-        </div>
 
-        <div class="card exercise-list-card border-0">
-            <div class="card-body p-4">
-                <h2 class="h4 text-light fw-bold mb-4 d-flex align-items-center gap-2">
-                    <i class="bi bi-list-task text-accent-blue"></i> Программа упражнений
-                </h2>
+            <div class="sidebar-footer">
+                <form asp-controller="Dashboard" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Выйти из системы</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
 
-                @if (Model.Exercises == null || Model.Exercises.Count == 0)
-                {
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-exclamation-circle d-block mb-2 fs-3"></i>
-                        В этой тренировке пока нет упражнений.
+        <!-- CONTENT -->
+        <main class="main-content">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                <a href="/Dashboard/Index" class="text-decoration-none text-light fw-medium small">
+                    <i class="bi bi-arrow-left me-1"></i> Назад на главный
+                </a>
+
+                <a asp-controller="Workout" asp-action="CreateTemplateFromWorkout" asp-route-workoutId="@Model.Id" class="btn btn-outline-primary btn-sm btn-template-action px-3">
+                    <i class="bi bi-bookmark-plus me-1"></i> Сохранить как шаблон
+                </a>
+            </div>
+
+            <div class="card workout-main-card border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                        <h1 class="h2 fw-bold text-light m-0">@Model.Name</h1>
+                        <span class="badge bg-dark-subtle text-primary border border-primary-subtle py-2 px-3 rounded-pill fs-6">
+                            <i class="bi bi-calendar3 me-2"></i>@Model.Date.ToString("dd.MM.yyyy")
+                        </span>
                     </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column gap-3">
-                        @for (int i = 0; i < Model.Exercises.Count; i++)
-                        {
-                            var exercise = Model.Exercises[i];
-                            <div class="exercise-item p-3">
-                                <div class="row align-items-center g-3">
-                                    <div class="col-12 col-md-6 d-flex align-items-center gap-3">
-                                        <span class="text-muted fw-bold font-monospace">#@(i + 1)</span>
-                                        <h3 class="h5 text-light m-0 fw-semibold">@exercise.NameOfExercise</h3>
-                                    </div>
 
-                                    <div class="col-12 col-md-6 text-md-end d-flex justify-content-md-end gap-3">
-                                        <div class="exercise-badge">
-                                            <span class="small text-light-muted fw-normal me-1">Повторы:</span>
-                                            <span>@(!string.IsNullOrEmpty(exercise.Reps?.ToString()) && exercise.Reps.ToString() != "0" ? exercise.Reps : "—")</span>
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <p class="text-light m-0 p-3 rounded-3" style="background-color: #0b0d13; border: 1px solid var(--border-color);">
+                            @Model.Description
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-light italic m-0">Описание к этой тренировке не оставлено.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card exercise-list-card border-0">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-light fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-list-task text-primary"></i> Программа упражнений
+                    </h2>
+
+                    @if (Model.Exercises == null || Model.Exercises.Count == 0)
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-exclamation-circle d-block mb-2 fs-4"></i>
+                            В этой тренировке пока нет упражнений.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            @for (int i = 0; i < Model.Exercises.Count; i++)
+                            {
+                                var exercise = Model.Exercises[i];
+                                <div class="exercise-item p-3">
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-12 col-md-6 d-flex align-items-center gap-3">
+                                            <span class="text-muted fw-bold font-monospace">#@(i + 1)</span>
+                                            <h3 class="h6 text-light m-0 fw-semibold">@exercise.NameOfExercise</h3>
                                         </div>
-                                        <div class="exercise-badge">
-                                            <span class="small text-light-muted fw-normal me-1">Вес:</span>
-                                            <span>@(!string.IsNullOrEmpty(exercise.Weight?.ToString()) && exercise.Weight.ToString() != "0" ? $"{exercise.Weight} кг" : "—")</span>
+
+                                        <div class="col-12 col-md-6 text-md-end d-flex justify-content-md-end gap-3">
+                                            <div class="exercise-badge">
+                                                <span class="small text-light-muted fw-normal me-1">Повторы:</span>
+                                                <span>@(!string.IsNullOrEmpty(exercise.Reps?.ToString()) && exercise.Reps.ToString() != "0" ? exercise.Reps : "—")</span>
+                                            </div>
+                                            <div class="exercise-badge">
+                                                <span class="small text-light-muted fw-normal me-1">Вес:</span>
+                                                <span>@(!string.IsNullOrEmpty(exercise.Weight?.ToString()) && exercise.Weight.ToString() != "0" ? $"{exercise.Weight} кг" : "—")</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                }
-
+                            }
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
 
+        </main>
     </div>
-
 </body>
 </html>
